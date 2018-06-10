@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import logging
 import subprocess
 
+import django
 from django.contrib.staticfiles.storage import staticfiles_storage
 
 from django import template
@@ -116,12 +117,15 @@ class PipelineMixin(object):
         return method(package, paths, templates=templates)
 
     def render_error(self, package_type, package_name, e):
-        return render_to_string('pipeline/compile_error.html', Context({
+        context = {
             'package_type': package_type,
             'package_name': package_name,
             'command': subprocess.list2cmdline(e.command),
             'errors': e.error_output,
-        }))
+        }
+        if django.VERSION < (1, 11):
+            context = Context(context)
+        return render_to_string('pipeline/compile_error.html', context)
 
 
 class StylesheetNode(PipelineMixin, template.Node):
