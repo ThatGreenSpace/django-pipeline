@@ -3,12 +3,15 @@ from __future__ import unicode_literals
 from django.core.exceptions import MiddlewareNotUsed
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.html import strip_spaces_between_tags as minify_html
+from django.utils.deprecation import MiddlewareMixin
 
 from pipeline.conf import settings
 
 
-class MinifyHTMLMiddleware(object):
-    def __init__(self):
+class MinifyHTMLMiddleware(MiddlewareMixin):
+
+    def __init__(self, get_response=None):
+        super(MinifyHTMLMiddleware, self).__init__(get_response)
         if not settings.PIPELINE_ENABLED:
             raise MiddlewareNotUsed
 
